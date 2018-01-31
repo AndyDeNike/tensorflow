@@ -31,6 +31,7 @@ def main(argv):
     args = parser.parse_args(argv[1:])
 
     # Fetch the data
+    # Call load_data() to parse the CSV file.
     (train_x, train_y), (test_x, test_y) = iris_data.load_data()
 
     # Feature columns describe how to use the input.

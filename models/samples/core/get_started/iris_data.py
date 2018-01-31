@@ -9,7 +9,9 @@ CSV_COLUMN_NAMES = ['SepalLength', 'SepalWidth',
 SPECIES = ['Sentosa', 'Versicolor', 'Virginica']
 
 def maybe_download():
+    # Create a local copy of the training set.
     train_path = tf.keras.utils.get_file(TRAIN_URL.split('/')[-1], TRAIN_URL)
+    # train_path now holds the pathname: ~/.keras/datasets/iris_training.csv
     test_path = tf.keras.utils.get_file(TEST_URL.split('/')[-1], TEST_URL)
 
     return train_path, test_path
@@ -18,12 +20,24 @@ def load_data(y_name='Species'):
     """Returns the iris dataset as (train_x, train_y), (test_x, test_y)."""
     train_path, test_path = maybe_download()
 
-    train = pd.read_csv(train_path, names=CSV_COLUMN_NAMES, header=0)
+    # Parse the local CSV file.
+    train = pd.read_csv(train_path, 
+                        names=CSV_COLUMN_NAMES, # list of column names
+                        header=0 # ignore the first row of the CSV file.
+                        )
+    # train now holds a pandas DataFrame, which is data structure
+    # analogous to a table.
+
+    # 1. Assign the DataFrame's labels (the right-most column) to train_label.
+    # 2. Delete (pop) the labels from the DataFrame.
+    # 3. Assign the remainder of the DataFrame to train_features
     train_x, train_y = train, train.pop(y_name)
 
+    # Apply the preceding logic to the test set.
     test = pd.read_csv(test_path, names=CSV_COLUMN_NAMES, header=0)
     test_x, test_y = test, test.pop(y_name)
 
+    # Return four DataFrames.
     return (train_x, train_y), (test_x, test_y)
 
 
