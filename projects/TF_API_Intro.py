@@ -89,6 +89,82 @@ print(sess.run((out1, out2)))
 #)
 
 #FEEDING 
+#A graph can be parameterized to accept external inputs, known as 
+#placeholders which 'promise' to provide a value later, like a funciton
+#argument
+x = tf.placeholder(tf.float32) #x, y are tensors!
+y = tf.placeholder(tf.float32)
+z = x + y
+#using feed_dict we can evaluate multiple inputs
+print(sess.run(z, feed_dict={x: 3, y: 4.5}))
+print(sess.run(z, feed_dict={x: [1, 3], y: [2, 4]}))
+
+#DATASETS 
+#Prefered method of streaming data into a model 
+#to get a runnable 'tf.Tensor' from a Dataset you must convert it to 
+#a 'tf.data.Iterator' and then call the Iterator's 'get_next' method.
+#Simplest way to create an Iterator is with the 'make_one_shot_iterator'
+#method.  
+my_data = [
+	[0, 1,],
+	[2, 3,],
+	[4, 5,],
+	[6, 7,],
+]
+slices = tf.data.Dataset.from_tensor_slices(my_data)
+next_item = slices.make_one_shot_iterator().get_next()
+
+while True:
+	try:
+		print(sess.run(next_item))
+	except tf.errors.OutOfRangeError:
+		break
+
+#LAYERS 
+#Prefered way to add trainable parameters to graph 
+#Ex: A 'densely-connected layer' performs a weighted sum across all
+#inputs for each output and applies an optional 'activation function'.
+#The connection weights and biases are managed by the layer object.
+
+#CREATING LAYERS 
+#The following code creates a 'Dense' layer that takes a batch of input
+#vectors and produces a single output value for each.
+#To apply a layer to input, call it as though it was a function.
+x = tf.placeholder(tf.float32, shape=[None, 3])
+linear_model = tf.layers.Dense(units=1) #Dense performs weighted sum 
+y = linear_model(x)
+
+#INITIALIZING LAYERS
+#Later contains variables that must be initialized before use.
+#While we can initialize variables individually, to initialize all:
+init = tf.global_variables_initializer()
+sess.run(init)
+#global_variables_initializer only initializes variables before it session
+#it is recommended to be one of the last things added during graph creation.
+
+#EXECUTING LAYERS
+#We can evaluate the 'linear_model' output tensor (as we would any tensor).
+print(sess.run(y, {x: [[1, 2, 3], [4, 5, 6]]}))
+#Ex output: 
+#[[-3.41378999]
+# [-9.14999008]]
+
+#LAYER FUNCTION SHORTCUTS
+#TF supplies a shortcut function that creates and runs layer in a single 
+#call (unlike 'tf.layers.Dense') as follows: 
+x = tf.placeholder(tf.float32, shape=[None, 3])
+y = tf.layers.dense(x, units=1)
+
+init = tf.global_variables_initializer()
+sess.run(init)
+
+print(sess.run(y, {x: [[1, 2, 3], [4, 5, 6]]}))
+#Downside to the above shortcut is it makes use of 'tf.layers.Layer'
+#object impossible, as well as debugging/layer reuse unavailable.
+
+
+
+
 
 
 
