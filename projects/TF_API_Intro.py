@@ -52,3 +52,12 @@ print(total)
 #assigned to them in Python.  TENSORS are named after the operation 
 #that produces them (ex. add:0)
 
+#TENSORBOARD
+#save computation graph to a TesorBoard summary file:
+writer = tf.summary.FileWriter('.')
+writer.add_graph(tf.get_default_graph())
+print('this allows the summary file to appear but why?')
+#to access TensorBoard: 'tensorboard --logdir .'
+
+
+
