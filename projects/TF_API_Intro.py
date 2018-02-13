@@ -54,10 +54,41 @@ print(total)
 
 #TENSORBOARD
 #save computation graph to a TesorBoard summary file:
-writer = tf.summary.FileWriter('.')
-writer.add_graph(tf.get_default_graph())
-print('this allows the summary file to appear but why?')
+#writer = tf.summary.FileWriter('.')
+#writer.add_graph(tf.get_default_graph())
+#print('this allows the summary file to appear but why?')
 #to access TensorBoard: 'tensorboard --logdir .'
+
+#SESSION 
+#to evaluate tensors, instantiate 'tf.Session' object (session)
+#following code creates tf.Session object and invokes 'run' to evaluate
+#'total' tensor created 
+sess = tf.Session()
+print(sess.run(total))
+#7.0
+#TensorFlow backtracks through the graph and runs all nodes that provide
+#input to the request output node. 
+
+#Pass multiple tesnors, RUN handles any combination of tuples/dictionaries
+print(sess.run({'ab':(a, b), 'total':total}))
+
+#During a call to 'ft.Session.run', any 'tf.Tensor' only has a single
+#value.  Ex: 'tf.random_uniform' to produce a 'tf.Tensor' that 
+#generates a random 3-element vector(with values in [0,1)):
+vec = tf.random_uniform(shape=(3,))
+out1 = vec + 1
+out2 = vec + 2
+print(sess.run(vec))
+print(sess.run(vec))
+print(sess.run((out1, out2)))
+#[ 0.52917576  0.64076328  0.68353939]
+#[ 0.66192627  0.89126778  0.06254101]
+#(
+  #array([ 1.88408756,  1.87149239,  1.84057522], dtype=float32),
+  #array([ 2.88408756,  2.87149239,  2.84057522], dtype=float32)
+#)
+
+#FEEDING 
 
 
 
