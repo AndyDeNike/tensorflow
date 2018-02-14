@@ -212,6 +212,7 @@ print(sess.run(inputs))
 #DEFINE THE DATA
 #First define some inputs, x, and expected output for each input, y_true
 x = tf.constant([[1], [2], [3], [4]], dtype=tf.float32)
+
 y_true = tf.constant([[0], [-1], [-2], [-3]], dtype=tf.float32)
 
 #DEFINE THE MODEL 
@@ -225,5 +226,54 @@ init = tf.global_variables_initializer()
 sess.run(init)
 
 print(sess.run(y_pred))
+
+#LOSS
+#To optimize model, you must first define the 'loss'.  In this example
+#we use mean square error, a standard loss for regression problems. 
+#You could form common loss functions with lower level math operations
+#but the 'tf.losses' module provides this.
+loss = tf.losses.mean_squared_error(labels=y_true, predictions=y_pred)
+
+print(sess.run(loss))
+
+#TRAINING
+#TF includes 'optimizers', implemented as subclasses of 'tf.train.Optimizer'
+#They incrementally change each variable to minimize the loss.  
+#Simplest optimization algorithm is 'gradient descent', implemneted by
+#'tf.train.GradientDescentOptimizer'.  
+#It modifies each variable according to the magnitude of the derivative
+#of loss with respect to that variable.  EX: 
+optimizer = tf.train.GradientDescentOptimizer(0.01)
+train = optimizer.minimize(loss)
+#The previous code builds all graph components necessary for the 
+#optimization, and returns a training operation.  
+#When run, the training op will update variables in the graph. Run: 
+for i in range(100):
+	_, loss_value = sess.run((train,loss))
+	print(loss_value)
+
+
+#COMPLETE PROGRAM
+x = tf.constant([[1], [2], [3], [4]], dtype=tf.float32)
+y_true = tf.constant([[0], [-1], [-2], [-3]], dtype=tf.float32)
+
+linear_model = tf.layers.Dense(units=1)
+
+y_pred = linear_model(x)
+loss = tf.losses.mean_squared_error(labels=y_true, predictions=y_pred)
+
+optimizer = tf.train.GradientDescentOptimizer(0.01)
+train = optimizer.minimize(loss)
+
+init = tf.global_variables_initializer()
+
+sess = tf.Session()
+sess.run(init)
+for i in range(100):
+  _, loss_value = sess.run((train, loss))
+  print(loss_value)
+
+print(sess.run(y_pred))
+
 
 
