@@ -206,8 +206,24 @@ print(sess.run(inputs))
 # [  0.   1.   9.]]
 
 
+#TRAINING 
+#Train a small regression model manually:
 
+#DEFINE THE DATA
+#First define some inputs, x, and expected output for each input, y_true
+x = tf.constant([[1], [2], [3], [4]], dtype=tf.float32)
+y_true = tf.constant([[0], [-1], [-2], [-3]], dtype=tf.float32)
 
+#DEFINE THE MODEL 
+#Next, build a simple linear model with 1 output:
+linear_model = tf.layers.Dense(units=1)
 
+y_pred = linear_model(x)
+#you can evaluate the predictions as follows:
+sess = tf.Session()
+init = tf.global_variables_initializer()
+sess.run(init)
+
+print(sess.run(y_pred))
 
 
