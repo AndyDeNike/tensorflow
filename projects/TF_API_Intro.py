@@ -99,6 +99,7 @@ z = x + y
 print(sess.run(z, feed_dict={x: 3, y: 4.5}))
 print(sess.run(z, feed_dict={x: [1, 3], y: [2, 4]}))
 
+
 #DATASETS 
 #Prefered method of streaming data into a model 
 #to get a runnable 'tf.Tensor' from a Dataset you must convert it to 
@@ -119,6 +120,7 @@ while True:
 		print(sess.run(next_item))
 	except tf.errors.OutOfRangeError:
 		break
+
 
 #LAYERS 
 #Prefered way to add trainable parameters to graph 
@@ -161,6 +163,47 @@ sess.run(init)
 print(sess.run(y, {x: [[1, 2, 3], [4, 5, 6]]}))
 #Downside to the above shortcut is it makes use of 'tf.layers.Layer'
 #object impossible, as well as debugging/layer reuse unavailable.
+
+
+#FEATURE COLUMNS 
+#Easiest way to experiment with feature columns is using 
+#'tf.feature_column.input_layer'
+#This function only accepts dense columns as inputs SO to view result
+#of a categorical column you must wrap it in a 
+#'tf.feature_column.indicator_column'
+features = {
+	'sales' : [[5], [10], [8], [9]],
+	'department' : ['sports', 'sports', 'gardening', 'gardening']}
+
+department_column = tf.feature_column.categorical_column_with_vocabulary_list(
+		'department', ['sports', 'gardening'])
+department_column = tf.feature_column.indicator_column(department_column)
+
+columns = [
+	tf.feature_column.numeric_column('sales'),
+	department_column
+]
+
+inputs = tf.feature_column.input_layer(features, columns)
+#running 'inputs' tensor will parse the 'features' into a batch of 
+#vectors! 
+#Feature columns have internal state, like layers, and need to be
+#initialized.
+#Categorical columns use 'lookup tables' internally and reqire a 
+#seperate initialization operation, 'tf.tables_initializer'.
+var_init = tf.global_variables_initializer()
+table_init = tf.tables_initializer()
+sess = tf.Session()
+sess.run((var_init, table_init))
+#Once internal state has been initialized, you can run inputs like any
+#other 'tf.Tensor'
+print(sess.run(inputs))
+#This shows the feature columns have packed input vectors, with the 
+#one-hot "department" as the first two indices and "sales" as third. 
+#[[  1.   0.   5.]
+# [  1.   0.  10.]
+# [  0.   1.   8.]
+# [  0.   1.   9.]]
 
 
 
