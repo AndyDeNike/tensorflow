@@ -1,5 +1,10 @@
 #Import 'tensorflow'
+import os
+import numpy as np
+import skimage
+from skimage import data
 import tensorflow as tf 
+import matplotlib.pyplot as plt
 
 #Initialize two constants
 x1 = tf.constant([1,2,3,4])
@@ -53,7 +58,7 @@ def load_data(data_directory):
 	return images, labels 
 
 #ROOT_PATH is directory with all your training/test data 
-ROOT_PATH = "~/coding/tensorflow/projects/TF_Datacamp"
+ROOT_PATH = "/Users/andrew/Desktop/Archive/Coding/tensorflow/projects/TF_Datacamp"
 #Join specific paths to ROOT_PATH with join()
 train_data_directory = os.path.join(ROOT_PATH, "TrafficSigns/Training")
 test_data_directory = os.path.join(ROOT_PATH, "TrafficSigns/Testing")
@@ -61,3 +66,31 @@ test_data_directory = os.path.join(ROOT_PATH, "TrafficSigns/Testing")
 #Load the data into the train_data_directory variable
 #The load_data() function gathers all subdirectories present in t_d_d
 images, labels = load_data(train_data_directory)
+
+
+#TRAFFIC SIGN STATISTICS
+
+#Print the 'images' dimensions 
+print(np.array(images).ndim)
+
+#Print the number of 'images's elements
+print(np.array(images).size)
+
+#Print the first instance of 'images'
+print(np.array(images)[0])
+
+#Print the 'labels' dimensions 
+print(np.array(labels).ndim)
+
+#Print the number of 'labels''s elements 
+print(np.array(labels).size)
+
+#Count the number of labels
+print(len(set(np.array(labels))))
+
+
+#Make a histogram with 62 bins of the 'labels' data
+plt.hist(labels, 62)
+
+#Show the plot 
+plt.show()
