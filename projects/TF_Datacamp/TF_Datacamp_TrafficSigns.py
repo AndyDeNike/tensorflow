@@ -2,7 +2,8 @@
 import os
 import numpy as np
 import skimage
-from skimage import data, 
+from skimage import data, transform
+from skimage.color import rgb2gray
 import tensorflow as tf 
 import matplotlib.pyplot as plt
 
@@ -26,6 +27,8 @@ result = tf.multiply(x1, x2)
 with tf.Session() as sess:
 	output = sess.run(result)
 	print(output)
+
+#[ 5 12 21 32]
 
 
 #LOADING AND EXPLORING THE DATA:  BELGIAN TRAFFIC SIGNS
@@ -72,21 +75,26 @@ images, labels = load_data(train_data_directory)
 
 #Print the 'images' dimensions 
 print(np.array(images).ndim)
+#1 
 
 #Print the number of 'images's elements
 print(np.array(images).size)
+#4575
 
 #Print the first instance of 'images'
 print(np.array(images)[0])
 
 #Print the 'labels' dimensions 
 print(np.array(labels).ndim)
+#1
 
 #Print the number of 'labels''s elements 
 print(np.array(labels).size)
+#4575
 
 #Count the number of labels
 print(len(set(np.array(labels))))
+#62
 
 
 #Make a histogram with 62 bins of the 'labels' data
@@ -94,6 +102,7 @@ plt.hist(labels, 62)
 
 #Show the plot 
 plt.show()
+
 
 #VISUALIZING THE TRAFFIC SIGNS 
 
@@ -119,6 +128,10 @@ for i in range(len(traffic_signs)):
 	print("shape: {0}, min: {1}, max: {2}".format(images[traffic_signs[i]].shape,
 												  images[traffic_signs[i]].min(),
 												  images[traffic_signs[i]].max()))
+#shape: (236, 256, 3), min: 0, max: 255
+#shape: (133, 164, 3), min: 0, max: 255
+#shape: (122, 121, 3), min: 0, max: 255
+#shape: (123, 123, 3), min: 0, max: 215
 
 
 #Get the unique labels 
@@ -148,3 +161,75 @@ for label in unique_labels:
 	plt.imshow(image)
 #Show the plot
 plt.show()
+
+
+#FEATURE EXTRACTIONN
+#RESCALING IMAGES 
+images28 = [transform.resize(image, (28, 28)) for image in images]
+print(np.array(images28).shape)
+#(4575, 28, 28, 3) images are 784-dimensional 
+
+#Check result of rescaling:
+for i in range(len(traffic_signs)):
+	plt.subplot(1, 4, i+1)
+	plt.axis('off')
+	plt.imshow(images28[traffic_signs[i]])
+	plt.subplots_adjust(wspace=0.5)
+	plt.show()
+	print("shape: {0}, min: {1}, max: {2}".format(images28[traffic_signs[i]].shape,
+												  images28[traffic_signs[i]].min(),
+												  images28[traffic_signs[i]].max()))
+
+#shape: (28, 28, 3), min: 0.05070028011204415, max: 1.0
+#shape: (28, 28, 3), min: 0.0, max: 1.0
+#shape: (28, 28, 3), min: 0.027040816326528917, max: 1.0
+#shape: (28, 28, 3), min: 0.04141781712685025, max: 0.8151298019207689
+
+
+#IMAGE CONVERSION TO GREYSCALE
+#Convert 'images28' to an array 
+images28 = np.array(images28)
+
+#Convert 'images28' to grayscale 
+images28 = rgb2gray(images28) 
+
+for i in range(len(traffic_signs)):
+	plt.subplot(1, 4, i+1)
+	plt.axis('off')
+	plt.imshow(images28[traffic_signs[i]], cmap="gray")
+	plt.subplots_adjust(wspace=0.5)
+
+#Show the plot 
+plt.show()
+
+
+#DEEP LEARNING WITH TENSORFLOW 
+#MODELING THE NEURAL NETWORK 
+#Initialize placeholders
+x = tf.placeholder(dtype = tf.float32, shape = [None, 28, 28])
+y = tf.placeholder(dtype = tf.int32, shape = [None])
+
+#Flatten the input data
+images_flat = tf.contrib.layers.flatten(x)
+
+#Fully connected layer 
+logits = tf.contrib.layers.fully_connected(images_flat, 62, tf.nn.relu)
+
+#Define a loss function
+loss = tf.reduce_mean(tf.nn.sparse_softmax_cross_entropy_with_logits(labels = y,
+	 																 logits = logits))
+
+#Define an optimaizer 
+train_op = tf.train.AdamOptimizer(learning_rate=0.001).minimize(loss)
+
+#Convert logits to label indexes 
+correct_pred = tf.argmax(logits, 1)
+
+#Define an accuracy metric
+accuracy = tf.reduce_mean(tf.cast(correct_pred, tf.float32))
+
+
+print("images_flat: ", images_flat)
+print("logits: ", logits)
+print("loss: ", loss)
+print("predicted_labels: ", correct_pred)
