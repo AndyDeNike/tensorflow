@@ -6,6 +6,7 @@ from skimage import data, transform
 from skimage.color import rgb2gray
 import tensorflow as tf 
 import matplotlib.pyplot as plt
+import random
 
 #Initialize two constants
 x1 = tf.constant([1,2,3,4])
@@ -233,3 +234,55 @@ print("images_flat: ", images_flat)
 print("logits: ", logits)
 print("loss: ", loss)
 print("predicted_labels: ", correct_pred)
+
+#RUNNING THE NEURAL NETWORK 
+
+tf.set_random_seed(1234)
+sess = tf.Session()
+
+sess.run(tf.global_variables_initializer())
+
+for i in range(201):
+	print('EPOCH', i)
+	_, accuracy_val = sess.run([train_op, accuracy], feed_dict={x: images28, y:labels})
+	if i % 10 == 0:
+		print("Loss: ", loss)
+	print('DONE WITH EPOCH')
+
+
+#tf.set_random_seed(1234)
+
+#with tf.Session() as sess:
+    #sess.run(tf.global_variables_initializer())
+    #for i in range(201):
+        #_, loss_value = sess.run([train_op, loss], feed_dict={x: images28, y: labels})
+        #if i % 10 == 0:
+            #print("Loss: ", loss)
+
+
+#EVALUATING NEURAL NETWORK
+#Pick 10 random images 
+sample_indexes = random.sample(range(len(images28)), 10)
+sample_images = [images28[i] for i in sample_indexes]
+sample_labels = [labels[i] for i in sample_indexes]
+
+#Run the "correct_pred" operation 
+predicted = sess.run([correct_pred], feed_dict={x: sample_images})[0]
+
+#Print the real and predicted labels 
+print(sample_labels)
+print(predicted)
+
+#Display the predictions and the ground truth visually. 
+fig = plt.figure(figsize=(10,10))
+for i in range(len(sample_images)):
+	truth = sample_labels[i]
+	prediction = predicted[i]
+	plt.subplot(5, 2,1+i)
+	plt.axis('off')
+	color='green' if truth == prediction else 'red'
+	plt.text(40, 10, "Truth:        {0}\nPrediction: {1}".format(truth, prediction),
+		     fontsize=12, color=color)
+	plt.imshow(sample_images[i], cmap="gray")
+
+plt.show()
